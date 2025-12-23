@@ -59,11 +59,9 @@ class HousePricePredictor:
         scaler = joblib.load('scaler.joblib')
         model = joblib.load('ml_model.joblib')
 
-        # insert our inpute to scaler then it will convert it and then insert the converted scaler format to prediction format
-        
-        # Prepare input
-        input_data = np.array([[size, bedrooms, age]])
-        input_scaled = scaler.transform(input_data)
+        # Prepare input with feature names to avoid sklearn warning
+        input_df = pd.DataFrame([[size, bedrooms, age]], columns=['size', 'bedrooms', 'age'])
+        input_scaled = scaler.transform(input_df)
         
         # Predict
         prediction = model.predict(input_scaled)[0]

@@ -1,17 +1,23 @@
 from django.shortcuts import render
+from django.http import JsonResponse, HttpResponseBadRequest
+from django.views.decorators.csrf import csrf_exempt
 from .ml_model import HousePricePredictor
 
-def predict_price(request):
-    prediction = None
-    if request.method == 'POST':
+@csrf_exempt  # Dev-only: remove when wiring CSRF on frontend
+def form_api(request):
+    if request.method == "POST":
+        import json
         try:
-            size = float(request.POST.get('size'))
-            bedrooms = int(request.POST.get('bedrooms'))
-            age = float(request.POST.get('age'))
-            
-            predictor = HousePricePredictor()
-            prediction = predictor.predict(size, bedrooms, age)
-        except (ValueError, TypeError):
-            prediction = "Invalid input"
-    
-    return render(request, 'predict.html', {'prediction': prediction})
+            data = json.loads(request.body or '{}')
+            size = float(data.get("size"))
+            bedrooms = int(data.get("bedrooms"))
+            age = float(data.get("age"))
+            print(f"Received data - Size: {size}, Bedrooms: {bedrooms}, Age: {age}")
+        except (ValueError, TypeError, json.JSONDecodeError):
+            return HttpResponseBadRequest("Invalid input payload")
+
+        predictor = HousePricePredictor()
+        predicted = predictor.predict(size, bedrooms, age)
+        return JsonResponse({"predicted_price": predicted})
+
+    return HttpResponseBadRequest("Only POST is supported")
