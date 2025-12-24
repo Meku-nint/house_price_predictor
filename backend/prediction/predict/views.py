@@ -5,7 +5,9 @@ from .ml_model import HousePricePredictor
 from .tasks import retrain_model, predict_async
 import json
 from datetime import datetime
-
+from django.http import HttpResponse
+def home(request):
+    return HttpResponse("Django server is now running.")
 @csrf_exempt
 def predict(request):
     """Simple prediction endpoint"""

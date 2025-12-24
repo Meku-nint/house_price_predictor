@@ -16,8 +16,10 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from predict import views as predict_views
 
 urlpatterns = [
+    path('', predict_views.home, name='home'),
     path('admin/', admin.site.urls),
     path('api/', include('predict.urls')),
 ]
