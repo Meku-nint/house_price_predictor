@@ -1,23 +1,57 @@
-from django.shortcuts import render
-from django.http import JsonResponse, HttpResponseBadRequest
+# predict/views.py
+from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from .ml_model import HousePricePredictor
+from .tasks import retrain_model, predict_async
+import json
+from datetime import datetime
 
-@csrf_exempt  # Dev-only: remove when wiring CSRF on frontend
-def form_api(request):
+@csrf_exempt
+def predict(request):
+    """Simple prediction endpoint"""
     if request.method == "POST":
-        import json
         try:
-            data = json.loads(request.body or '{}')
-            size = float(data.get("size"))
-            bedrooms = int(data.get("bedrooms"))
-            age = float(data.get("age"))
-            print(f"Received data - Size: {size}, Bedrooms: {bedrooms}, Age: {age}")
-        except (ValueError, TypeError, json.JSONDecodeError):
-            return HttpResponseBadRequest("Invalid input payload")
+            data = json.loads(request.body)
+            size = float(data["size"])
+            bedrooms = int(data["bedrooms"])
+            age = float(data["age"])
+            
+            predictor = HousePricePredictor()
+            price = predictor.predict(size, bedrooms, age)
+            
+            return JsonResponse({
+                "predicted_price": price,
+                "timestamp": datetime.now().isoformat()
+            })
+        except:
+            return JsonResponse({"error": "Invalid input"}, status=400)
+    
+    return JsonResponse({"error": "POST only"}, status=405)
 
-        predictor = HousePricePredictor()
-        predicted = predictor.predict(size, bedrooms, age)
-        return JsonResponse({"predicted_price": predicted})
+@csrf_exempt
+def trigger_retrain(request):
+    """Manually trigger retraining"""
+    if request.method == "POST":
+        task = retrain_model.delay()
+        return JsonResponse({
+            "status": "queued",
+            "task_id": task.id,
+            "message": "Retraining started in background"
+        })
+    
+    return JsonResponse({"error": "POST only"}, status=405)
 
-    return HttpResponseBadRequest("Only POST is supported")
+@csrf_exempt
+def model_info(request):
+    """Get basic model info"""
+    try:
+        with open('model_metadata.json', 'r') as f:
+            metadata = json.load(f)
+        
+        return JsonResponse({
+            "status": "success",
+            "metadata": metadata,
+            "current_time": datetime.now().isoformat()
+        })
+    except:
+        return JsonResponse({"status": "no_model"}, status=404)

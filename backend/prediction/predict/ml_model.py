@@ -1,68 +1,89 @@
 import joblib
 import numpy as np
 import pandas as pd
+import os
+import json
+from datetime import datetime
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 from sklearn.linear_model import LinearRegression
 
 class HousePricePredictor:
     def __init__(self):
-        # Simulate training a model (in real scenario, we have to use actual dataset)
-
-        #Total rows: 1000
-        #Columns: 4 (size, bedrooms, age, price)
-
-        np.random.seed(42)
-        self.data = pd.DataFrame({
-            'size': np.random.uniform(1000, 5000, 1000), # 1,2,3,4  Generates 1000 random float values 
-            'bedrooms': np.random.randint(1, 6, 1000),   # Generates 1000 random integer values
+        self.model = None
+        self.scaler = None
+        
+        # Check if model exists
+        if os.path.exists('model.joblib') and os.path.exists('scaler.joblib'):
+            self.load_model()
+        else:
+            self.train_model()
+    
+    def train_model(self):
+        """Train and save model"""
+        print("Training new model...")
+        
+        # Generate NEW data each time (different seed)
+        np.random.seed(int(datetime.now().timestamp()) % 1000)
+        
+        data = pd.DataFrame({
+            'size': np.random.uniform(1000, 5000, 1000),
+            'bedrooms': np.random.randint(1, 6, 1000),
             'age': np.random.uniform(0, 50, 1000),
-            'price': None
         })
         
-        # Create synthetic price based on features
-        self.data['price'] = (
-            self.data['size'] * 0.2 + 
-            self.data['bedrooms'] * 50000 - 
-            self.data['age'] * 1000 + 
+        # Add some market variation
+        market_trend = 1 + (datetime.now().hour / 100)  # Slight trend based on time
+        
+        data['price'] = (
+            data['size'] * 0.2 * market_trend + 
+            data['bedrooms'] * 50000 - 
+            data['age'] * 1000 + 
             np.random.normal(0, 50000, 1000)
         )
         
-        # Prepare the model
-        X = self.data[['size', 'bedrooms', 'age']]
-        y = self.data['price']
-        
-        # Split and scale data
-        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-        
-        scaler = StandardScaler()
-        X_train_scaled = scaler.fit_transform(X_train)
-        
         # Train model
+        X = data[['size', 'bedrooms', 'age']]
+        y = data['price']
+        
+        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
+        
+        self.scaler = StandardScaler()
+        X_train_scaled = self.scaler.fit_transform(X_train)
+        
         self.model = LinearRegression()
         self.model.fit(X_train_scaled, y_train)
         
-        # Save scaler and model
-        joblib.dump(scaler, 'scaler.joblib')
-        joblib.dump(self.model, 'ml_model.joblib')
-
-# Why is this important?
-
-# Ensures all features are on the same scale
-# Prevents features with larger magnitudes from dominating the machine learning model
-# Improves the performance and convergence of many machine learning algorithms
-    
-
-
-    def predict(self, size, bedrooms, age):
-        # Load saved model and scaler
-        scaler = joblib.load('scaler.joblib')
-        model = joblib.load('ml_model.joblib')
-
-        # Prepare input with feature names to avoid sklearn warning
-        input_df = pd.DataFrame([[size, bedrooms, age]], columns=['size', 'bedrooms', 'age'])
-        input_scaled = scaler.transform(input_df)
+        # Save
+        joblib.dump(self.model, 'model.joblib')
+        joblib.dump(self.scaler, 'scaler.joblib')
         
-        # Predict
-        prediction = model.predict(input_scaled)[0]
+        # Save metadata
+        metadata = {
+            'trained_at': datetime.now().isoformat(),
+            'training_samples': len(X_train),
+            'market_trend': market_trend
+        }
+        
+        with open('model_metadata.json', 'w') as f:
+            json.dump(metadata, f)
+        
+        print(f"Model trained and saved at {metadata['trained_at']}")
+    
+    def load_model(self):
+        """Load existing model"""
+        print("Loading existing model...")
+        self.model = joblib.load('model.joblib')
+        self.scaler = joblib.load('scaler.joblib')
+    
+    def predict(self, size, bedrooms, age):
+        """Make prediction"""
+        if self.model is None:
+            self.load_model()
+        
+        input_df = pd.DataFrame([[size, bedrooms, age]], 
+                               columns=['size', 'bedrooms', 'age'])
+        input_scaled = self.scaler.transform(input_df)
+        
+        prediction = self.model.predict(input_scaled)[0]
         return round(prediction, 2)
