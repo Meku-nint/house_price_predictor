@@ -40,42 +40,42 @@ const submitHandler= async(e)=>{
           <div className="space-y-2">
             <label className="block text-sm font-medium text-slate-200">House Size (sq ft)</label>
             <input
-              className="w-2/3 rounded-xl border border-slate-800 bg-slate-950/70 px-4 py-3 text-slate-100 outline-none ring-0 focus:border-cyan-400 focus:ring-2 focus:ring-cyan-400/30 transition"
+              className="w-2/3 rounded-xl border border-slate-400 bg-slate-950/70 px-4 py-3 text-slate-100 outline-none ring-0 focus:border-cyan-400 focus:ring-2 focus:ring-cyan-400/30 transition"
               type="number"
               min={0}
               name='size'
               required
               onChange={handleChange}
               value={houseData.size}
-              placeholder="e.g. 1800"
+              placeholder="1000-5000 sq ft"
             />
           </div>
 
           <div className="space-y-2">
             <label className="block text-sm font-medium text-slate-200">Number of bedrooms</label>
             <input
-              className="w-2/3 rounded-xl border border-slate-800 bg-slate-950/70 px-4 py-3 text-slate-100 outline-none ring-0 focus:border-cyan-400 focus:ring-2 focus:ring-cyan-400/30 transition"
+              className="w-2/3 rounded-xl border border-slate-400 bg-slate-950/70 px-4 py-3 text-slate-100 outline-none ring-0 focus:border-cyan-400 focus:ring-2 focus:ring-cyan-400/30 transition"
               type='number'
               min={0}
               name="bedrooms"
               required
               onChange={handleChange}
               value={houseData.bedrooms}
-              placeholder="e.g. 3"
+              placeholder="1-6 bedrooms"
             />
           </div>
 
           <div className="space-y-2">
             <label className="block text-sm font-medium text-slate-200">House Age (years)</label>
             <input
-              className="w-2/3 rounded-xl border border-slate-800 bg-slate-950/70 px-4 py-3 text-slate-100 outline-none ring-0 focus:border-cyan-400 focus:ring-2 focus:ring-cyan-400/30 transition"
+              className="w-2/3 rounded-xl border border-slate-400 bg-slate-950/70 px-4 py-3 text-slate-100 outline-none ring-0 focus:border-cyan-400 focus:ring-2 focus:ring-cyan-400/30 transition"
               type='number'
               min={0}
               name="age"
               required
               onChange={handleChange}
               value={houseData.age}
-              placeholder="e.g. 8"
+              placeholder="0-50 years"
             />
           </div>
             <div className="flex justify-end">

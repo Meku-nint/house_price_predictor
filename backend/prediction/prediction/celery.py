@@ -11,6 +11,6 @@ app.autodiscover_tasks() # Automatically discover tasks in tasks.py
 app.conf.beat_schedule = {
     'retrain-every-2-hours': {
         'task': 'predict.tasks.retrain_model',
-        'schedule': 7200.0,  # 2 hours in seconds
+        'schedule': 15.0,  # 2 hours in seconds
     },
 }

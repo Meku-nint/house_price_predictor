@@ -1,6 +1,6 @@
 {
-  "trained_at": "2025-12-24T11:24:49.921000Z",
+  "trained_at": "2025-12-25T12:11:51.011382Z",
   "training_samples": null,
-  "market_trend": 1.1400000000000001,
-  "data_source": "synthetic"
+  "market_trend": 1.15,
+  "data_source": "D:\\icogLab\\housePricePredictor\\backend\\prediction\\predict\\data\\new_listings.csv"
 }
