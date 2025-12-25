@@ -1,4 +1,3 @@
-# predict/views.py
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from .ml_model import HousePricePredictor
@@ -8,7 +7,7 @@ from datetime import datetime
 from django.http import HttpResponse
 def home(request):
     return HttpResponse("Django server is now running.")
-@csrf_exempt
+@csrf_exempt # disable CSRF for to allow requests from external frontend.
 def predict(request):
     """Simple prediction endpoint"""
     if request.method == "POST":
@@ -32,7 +31,7 @@ def predict(request):
 
 @csrf_exempt
 def trigger_retrain(request):
-    """Manually trigger retraining"""
+    # Triggers background model retraining on demand by enqueueing retrain_model to Redis (POST only) when celery beat not running.
     if request.method == "POST":
         task = retrain_model.delay()
         return JsonResponse({

@@ -5,7 +5,7 @@ from pathlib import Path
 from .ml_model import HousePricePredictor, DATA_PATH
 
 
-@shared_task
+@shared_task # celery decorator ,tell celery register this as background task.
 def retrain_model():
     """Scheduled retraining; uses CSV if present, otherwise synthetic data."""
     print(f"[{datetime.now()}] Starting scheduled retraining...")

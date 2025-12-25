@@ -1,11 +1,11 @@
+# celery configuration file to run background tasks,schedule periodic retraining.
 import os
 from celery import Celery
-
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'prediction.settings')
 
 app = Celery('prediction')
 app.config_from_object('django.conf:settings', namespace='CELERY')
-app.autodiscover_tasks()
+app.autodiscover_tasks() # Automatically discover tasks in tasks.py
 
 # SIMPLE 2-hour schedule
 app.conf.beat_schedule = {

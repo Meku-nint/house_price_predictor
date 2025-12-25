@@ -8,7 +8,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 from sklearn.linear_model import LinearRegression
 
-
+#  define the model artifact paths
 BASE_DIR = Path(__file__).resolve().parent
 ARTIFACT_DIR = BASE_DIR
 MODEL_PATH = ARTIFACT_DIR / "model.joblib"
